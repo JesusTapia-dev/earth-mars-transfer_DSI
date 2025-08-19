@@ -181,7 +181,7 @@ def plot_geometry(r1, r2, r_points=None, show=True, title="Heliocentric Geometry
     plt.plot(0,0,'yo',label='Sun')
     plt.plot(r1[0], r1[1], 'bo', label='Earth (dep)')
     plt.plot(r2[0], r2[1], 'ro', label='Mars (arr)')
-    plt.plot([r1[0], r2[0]], [r1[1], r2[1]], 'k--', label='Transfer chord')
+   # plt.plot([r1[0], r2[0]], [r1[1], r2[1]], 'k--', label='Transfer chord')
 
     if r_points is not None:
         plt.plot(r_points[:,0], r_points[:,1], '-', label='Transfer (approx)')
@@ -203,7 +203,7 @@ def plot_geometry(r1, r2, r_points=None, show=True, title="Heliocentric Geometry
 # -----------------------
 # Example runner
 # -----------------------
-def run_transfer(dep_date_tuple, arr_date_tuple, bsp='de421.bsp', plot=True):
+def run_transfer(dep_date_tuple, arr_date_tuple, bsp='de421.bsp', plot=True, summary=True):
     """
     High-level convenience function.
     dep_date_tuple, arr_date_tuple : (year, month, day) or (year, month, day, hour, minute, second)
@@ -247,14 +247,16 @@ def run_transfer(dep_date_tuple, arr_date_tuple, bsp='de421.bsp', plot=True):
     }
 
     # Print summary
-    print("Departure (UTC):", dep_date_tuple)
-    print("Arrival   (UTC):", arr_date_tuple)
-    print(f"Time-of-flight: {tof_seconds/86400.0:.2f} days ({tof_seconds:.1f} s)")
-    print("||r1|| = {:.3e} km, ||r2|| = {:.3e} km".format(norm(r1), norm(r2)))
-    print("||v_earth|| = {:.6f} km/s".format(norm(v_earth)))
-    print("||v_mars || = {:.6f} km/s".format(norm(v_mars)))
-    print("||v_transfer_dep|| = {:.6f} km/s, ||v_transfer_arr|| = {:.6f} km/s".format(norm(v_transfer_dep), norm(v_transfer_arr)))
-    print("Delta-V (dep): {:.6f} km/s, Delta-V (arr): {:.6f} km/s, Total ΔV: {:.6f} km/s".format(dv_dep, dv_arr, dv_total))
+    if summary:
+
+        print("Departure (UTC):", dep_date_tuple)
+        print("Arrival   (UTC):", arr_date_tuple)
+        print(f"Time-of-flight: {tof_seconds/86400.0:.2f} days ({tof_seconds:.1f} s)")
+        print("||r1|| = {:.3e} km, ||r2|| = {:.3e} km".format(norm(r1), norm(r2)))
+        print("||v_earth|| = {:.6f} km/s".format(norm(v_earth)))
+        print("||v_mars || = {:.6f} km/s".format(norm(v_mars)))
+        print("||v_transfer_dep|| = {:.6f} km/s, ||v_transfer_arr|| = {:.6f} km/s".format(norm(v_transfer_dep), norm(v_transfer_arr)))
+        print("Delta-V (dep): {:.6f} km/s, Delta-V (arr): {:.6f} km/s, Total ΔV: {:.6f} km/s".format(dv_dep, dv_arr, dv_total))
 
     if plot:
         plot_geometry(r1, r2, r_points, show=True, title=f"Earth->Mars transfer; TOF {tof_seconds/86400.0:.1f} d")
@@ -266,8 +268,8 @@ def run_transfer(dep_date_tuple, arr_date_tuple, bsp='de421.bsp', plot=True):
 # -----------------------
 if __name__ == "__main__":
     # Example dates (edit these to test various launch windows)
-    # Departure ~ Nov 7, 2024; arrival ~ Jun 5, 2025 ( ~ 210 - 260 days typical transfer)
-    departure = (2024, 11, 7, 0, 0, 0)
+    # Departure ~ Dec 14, 2024; arrival ~ Jun 5, 2025 ( ~ 210 - 260 days typical transfer)
+    departure = (2024, 12, 14, 0, 0, 0)
     arrival   = (2025, 6, 5, 0, 0, 0)
 
     # Run the deterministic baseline
