@@ -23,7 +23,7 @@ import numpy as np
 from deap import base, creator, tools, algorithms
 
 from skyfield.api import load
-from earth_mars_transfer import run_transfer
+from earth_mars_transfer_02 import run_transfer
 
 # --------- Configurable search window (edit to taste) ---------
 # We'll center a window around a plausible Earth->Mars opportunity.
