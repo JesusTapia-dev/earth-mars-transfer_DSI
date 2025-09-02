@@ -6,7 +6,7 @@ from pykep import lambert_problem, AU, DEG2RAD,DAY2SEC
 
 
 departure = (2024, 12, 14, 0, 0, 0)
-arrival   = (2025, 6, 5, 0, 0, 0)
+arrival   = (2025, 6, 8, 0, 0, 0)
 
 t1 = pk.epoch_from_string(f"{departure[0]}-{departure[1]:02d}-{departure[2]:02d} {departure[3]:02d}:{departure[4]:02d}:{departure[5]:02d}")
 t2 = pk.epoch_from_string(f"{arrival[0]}-{arrival[1]:02d}-{arrival[2]:02d} {arrival[3]:02d}:{arrival[4]:02d}:{arrival[5]:02d}")

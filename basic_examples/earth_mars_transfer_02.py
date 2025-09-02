@@ -71,7 +71,7 @@ def stumpff_c3(z):
         return 1.0/6.0 + z / 120.0 + z**2 / 5040.0
 
 # -----------------------
-# Lambert solver (single-rev, prograde only baseline)
+# Lambert solver (single-rev)
 # -----------------------
 def lambert_universal(r1, r2, tof, mu=MU_SUN, tol=1e-6, maxiter=200):
     """
@@ -169,9 +169,6 @@ def compute_dv(v_transfer_dep, v_body_dep, v_transfer_arr, v_body_arr):
     dv_arr = norm(v_body_arr - v_transfer_arr)
     return dv_dep, dv_arr, dv_dep + dv_arr
 
-# -----------------------
-# Plotting
-# -----------------------
 def plot_geometry(r1, r2, r_points=None, show=True, title="Heliocentric Geometry"):
     """
     Simple 2D plot of heliocentric positions and transfer chord.
@@ -200,10 +197,7 @@ def plot_geometry(r1, r2, r_points=None, show=True, title="Heliocentric Geometry
     if show:
         plt.show()
 
-# -----------------------
-# Example runner
-# -----------------------
-def run_transfer(dep_date_tuple, arr_date_tuple, bsp='de421.bsp', plot=True, summary=True):
+def run_transfer(dep_date_tuple, arr_date_tuple, bsp='de421.bsp', plot=False, summary=False):
     """
     High-level convenience function.
     dep_date_tuple, arr_date_tuple : (year, month, day) or (year, month, day, hour, minute, second)
@@ -232,7 +226,7 @@ def run_transfer(dep_date_tuple, arr_date_tuple, bsp='de421.bsp', plot=True, sum
     # compute delta-v
     dv_dep, dv_arr, dv_total = compute_dv(v_transfer_dep, v_earth, v_transfer_arr, v_mars)
 
-    # optional simple transfer sampling (straight chord interpolation for plotting)
+    
     npts = 80
     r_points = np.linspace(r1, r2, npts)
 
@@ -263,14 +257,11 @@ def run_transfer(dep_date_tuple, arr_date_tuple, bsp='de421.bsp', plot=True, sum
 
     return results
 
-# -----------------------
-# CLI / Example execution
-# -----------------------
 if __name__ == "__main__":
-    # Example dates (edit these to test various launch windows)
-    # Departure ~ Dec 14, 2024; arrival ~ Jun 5, 2025 ( ~ 210 - 260 days typical transfer)
+    # Example dates
+    # Departure ~ Dec 14, 2024; arrival ~ Jun 8, 2025 ( ~ 210 - 260 days typical transfer)
     departure = (2024, 12, 14, 0, 0, 0)
-    arrival   = (2025, 6, 5, 0, 0, 0)
+    arrival   = (2025, 6, 8, 0, 0, 0)
 
     # Run the deterministic baseline
-    res = run_transfer(departure, arrival, bsp='de421.bsp', plot=True)
+    res = run_transfer(departure, arrival, bsp='de421.bsp', plot=False, summary=True)
