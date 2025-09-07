@@ -80,7 +80,7 @@ def setup_deap(seed: int = 42):
     random.seed(seed)
     np.random.seed(seed)
 
-    # Fitness and Individual (create only once)
+    # Fitness and Individual
     if 'FitnessMin' not in creator.__dict__:
         creator.create('FitnessMin', base.Fitness, weights=(-1.0,))
     if 'Individual' not in creator.__dict__:
@@ -127,7 +127,8 @@ def main(
     seed: int = 42,
     halloffame_k: int = 5,
     verbose: bool = True,
-    threads: int = 1
+    threads: int = 1,
+    return_log: bool = False
 ):
     toolbox = setup_deap(seed=seed)
 
@@ -147,18 +148,20 @@ def main(
         stats.register("avg", np.mean)
         stats.register("std", np.std)
 
-        # Run evolution
-        algorithms.eaSimple(pop, toolbox,
-                            cxpb=cxpb,
-                            mutpb=mutpb,
-                            ngen=ngen,
-                            stats=stats,
-                            halloffame=hof,
-                            verbose=verbose)
+        # CAPTURE the logbook returned by eaSimple
+        pop, logbook = algorithms.eaSimple(
+            pop, toolbox,
+            cxpb=cxpb,
+            mutpb=mutpb,
+            ngen=ngen,
+            stats=stats,
+            halloffame=hof,
+            verbose=verbose
+        )
 
         if len(hof) == 0:
             print("No valid individuals found.")
-            return {
+            result = {
                 "best_individual": None,
                 "best_fitness": float('inf'),
                 "best_departure": None,
@@ -166,6 +169,10 @@ def main(
                 "dep_offset_days": None,
                 "tof_days": None,
             }
+            if return_log:
+                # Convert logbook to rows so it's JSON/CSV friendly
+                result["log"] = [dict(r) for r in logbook]
+            return result
 
         best = hof[0]
         dep_dt, arr_dt = decode_individual(best)
@@ -178,9 +185,13 @@ def main(
             "tof_days": float(best[1]),
         }
 
+        if return_log:
+            result["log"] = [dict(r) for r in logbook]
+
         print("\n=== Optimization Result ===")
         for k, v in result.items():
-            print(f"{k}: {v}")
+            if k != "log":
+                print(f"{k}: {v}")
 
         return result
 
@@ -191,7 +202,6 @@ def main(
 
 
 if __name__ == "__main__":
-
     # Direct call with parameters
     result = main(
         pop_size=200,
@@ -201,5 +211,6 @@ if __name__ == "__main__":
         seed=42,
         halloffame_k=5,
         verbose=True,
-        threads=4  # Set to 1 for no parallelism
+        threads=4,
+        return_log=False
     )
