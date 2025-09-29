@@ -110,12 +110,12 @@ def plot_pareto_front(pareto_front, outpath="runs/nsga_ii/pareto_front.png"):
 
     # Create a new figure
     plt.figure(figsize=(9, 6))
-    plt.scatter(delta_v_vals, tof_vals, c="#1f77b4", marker="o", label="Solutions")
+    plt.scatter(tof_vals,delta_v_vals, c="#1f77b4", marker="o", label="Solutions")
 
     # Add labels and title for clarity
-    plt.title("Pareto Front: Earth-Mars Transfer Optimization", fontsize=16)
-    plt.xlabel("Total Mission ΔV (km/s)", fontsize=12)
-    plt.ylabel("Time of Flight (days)", fontsize=12)
+    plt.title("Pareto Front NSGA-II: Earth-Mars Transfer Optimization", fontsize=16)
+    plt.ylabel("Total Mission ΔV (km/s)", fontsize=12)
+    plt.xlabel("Time of Flight (days)", fontsize=12)
     plt.grid(True, which='both', linestyle='--', linewidth=0.5)
     plt.legend()
     plt.tight_layout()
@@ -126,19 +126,22 @@ def plot_pareto_front(pareto_front, outpath="runs/nsga_ii/pareto_front.png"):
     print(f"\n[plot saved] Pareto front visualization saved to '{outpath}'")
 
 def main(
-    pop_size: int = 40,
-    ngen: int = 8,
+    pop_size: int = 150,
+    ngen: int = 75,
     cxpb: float = 0.6,
     mutpb: float = 0.2,
     seed: int = 42,
     verbose: bool = True,
-    threads: int = 1
+    enable_prints: bool = True,
+    threads: int = 3,
+    enable_plots: bool = True,
 ):
     toolbox = setup_deap(seed=seed)
 
     pool = None
     if threads and threads > 1:
         import multiprocessing as mp
+        print(f"Running in parallel with {threads} threads...")
         pool = mp.Pool(processes=threads)
         toolbox.register("map", pool.map)
 
@@ -165,20 +168,23 @@ def main(
             verbose=verbose
         )
 
-        print("\n=== Optimization Result: Pareto Front ===")
+        print("\n=== Optimization Result NSGA-II : Pareto Front ===")
         print(f"Found {len(hof)} non-dominated solutions.")
-        print("--------------------------------------------------------------------------------")
-        print("  Delta-V (km/s)  |  Time of Flight (days)  |  Departure Date")
-        print("--------------------------------------------------------------------------------")
-        
         sorted_hof = sorted(list(hof), key=lambda ind: ind.fitness.values[0])
+        if enable_prints:
+            print("--------------------------------------------------------------------------------")
+            print("  Delta-V (km/s)  |  Time of Flight (days)  |  Departure Date")
+            print("--------------------------------------------------------------------------------")
+            
+            
 
-        for ind in sorted_hof:
-            dv, tof = ind.fitness.values
-            dep_dt, _ = decode_individual(ind)
-            print(f"  {dv:^16.3f} |  {tof:^21.1f} |  {dep_dt.strftime('%Y-%m-%d')}")
-        print("--------------------------------------------------------------------------------")
-        plot_pareto_front(sorted_hof)
+            for ind in sorted_hof:
+                dv, tof = ind.fitness.values
+                dep_dt, _ = decode_individual(ind)
+                print(f"  {dv:^16.3f} |  {tof:^21.1f} |  {dep_dt.strftime('%Y-%m-%d')}")
+            print("--------------------------------------------------------------------------------")
+        if enable_plots:
+            plot_pareto_front(sorted_hof)
         return sorted_hof
 
     finally:
@@ -187,4 +193,9 @@ def main(
             pool.join()
 
 if __name__ == "__main__":
-    results = main(pop_size=200,ngen=20,threads=4)
+    import time
+    start_time = time.time()    
+    # Run with verbose=False to keep the final output clean
+    results = main(threads=16,verbose=False,enable_prints=False,enable_plots=False)
+    end_time = time.time()
+    print(f"Execution time: {end_time - start_time:.2f} seconds")
